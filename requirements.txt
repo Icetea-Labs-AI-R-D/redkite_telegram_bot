@@ -1,0 +1,9 @@
+fastapi
+langfuse
+pydantic_settings
+uvicorn
+openai
+python_decouple
+beanie
+pandas
+pyyaml
