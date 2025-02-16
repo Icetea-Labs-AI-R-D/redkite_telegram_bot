@@ -14,7 +14,9 @@ routes = APIRouter(
 )
 
 
-
+@routes.get("/")
+def read_main():
+    return {"msg": "Hello World"}
 
 @routes.get("/api/v1/hello")
 def hello():
@@ -29,21 +31,21 @@ async def update(payload: dict):
     
     logger.info("Payload:" + res)
     
-    # logger.info('payload["message"].get("entities", []): ' + str(payload["message"].get("entities", [])))
+    # logger.info('payload.get("message", {}).get("entities", []): ' + str(payload.get("message", {}).get("entities", [])))
     
     
     
-    # logger.info('payload["message"].get("entities", [])[:1]: ' + str(payload["message"].get("entities", [])[:1]))
+    # logger.info('payload.get("message", {}).get("entities", [])[:1]: ' + str(payload.get("message", {}).get("entities", [])[:1]))
     
-    if next(iter(payload["message"].get("entities", [])), {}).get("type", "") == "mention"  \
-            or  (payload["message"].get("reply_to_message", {}).get("from", {}).get("is_bot", False) \
-                and payload["message"].get("reply_to_message", {}).get("from", {}).get("username", "") == "RedKite_GPT_Bot"):
+    if next(iter(payload.get("message", {}).get("entities", [])), {}).get("type", "") == "mention" and "@RedKite_GPT_Bot" in payload.get("message", {}).get("text", "") \
+            or  (payload.get("message", {}).get("reply_to_message", {}).get("from", {}).get("is_bot", False) \
+                and payload.get("message", {}).get("reply_to_message", {}).get("from", {}).get("username", "") == "RedKite_GPT_Bot"):
 
-        chat_id = payload["message"]["chat"]["id"]
-        content = payload["message"]["text"]
+        chat_id = payload.get("message", {})["chat"]["id"]
+        content = payload.get("message", {})["text"]
         
         
-        reply_to_id = payload["message"]["message_id"]
+        reply_to_id = payload.get("message", {})["message_id"]
         
-        chat_service.reply_to_chat_message(chat_id, content, reply_to_id)
+        await chat_service.reply_to_chat_message(chat_id, content, reply_to_id)
         

@@ -7,3 +7,5 @@ python_decouple
 beanie
 pandas
 pyyaml
+pytest
+httpx

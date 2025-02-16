@@ -19,7 +19,7 @@ class MongoService:
         return new_conversation
     
     async def get_by_chat_id(self, chat_id: str) -> Optional[Conversation]:
-        conversation_document = await ConversationDocument.find(ConversationDocument.chat_id == chat_id).first_or_none()
+        conversation_document = await ConversationDocument.find({"chat_id": chat_id}).first_or_none()
 
         if conversation_document is not None:
             

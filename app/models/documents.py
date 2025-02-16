@@ -3,7 +3,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 class ConversationDocument(Document):
-    chat_id: str
+    chat_id: int
     conversation_id: str
     created_at: datetime = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
 
