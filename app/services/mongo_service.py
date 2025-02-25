@@ -13,37 +13,40 @@ class MongoService:
 
         new_conversation = ConversationDocument(conversation_id=conversation.conversation_id,
                                                     chat_id=conversation.chat_id,
+                                                    user_id=conversation.user_id,
                                                     created_at=conversation.created_at)
         await new_conversation.insert()
         
         return new_conversation
     
-    async def get_by_chat_id(self, chat_id: str) -> Optional[Conversation]:
-        conversation_document = await ConversationDocument.find({"chat_id": chat_id}).first_or_none()
+    async def get_by_chat_id_user_id(self, chat_id: int, user_id: int) -> Optional[Conversation]:
+        conversation_document = await ConversationDocument.find({"chat_id": chat_id, "user_id": user_id}).first_or_none()
 
         if conversation_document is not None:
             
             conversation = Conversation(conversation_id=conversation_document.conversation_id,
                                         chat_id=conversation_document.chat_id,
-                                        created_at=conversation_document.created_at)
+                                        history=conversation_document.history,
+                                        created_at=conversation_document.created_at,
+                                        user_id=conversation_document.user_id)
             
             return conversation
         
         
         conversation_id = str(uuid4())
-        conversation = Conversation(conversation_id=conversation_id, chat_id=chat_id)
+        conversation = Conversation(conversation_id=conversation_id, chat_id=chat_id, user_id=user_id)
         
         new_conversation = await self.create_conversation(conversation)
         
         return new_conversation
         
 
-    async def update_conversation(self, chat_id: str, conversation_id: str):
-        conversation = await ConversationDocument.find(ConversationDocument.chat_id == chat_id).first_or_none()
-        if conversation is not None:
-            conversation.chat_id = chat_id
+    async def update_conversation(self, chat_id: int, user_id: int, conversation: Conversation) -> bool:
+        persisted_conversation = await ConversationDocument.find({"chat_id": chat_id, "user_id": user_id}).first_or_none()
+        if persisted_conversation is not None:
+            persisted_conversation.history = conversation.history
        
-        await conversation.save()
+        await persisted_conversation.save()
         return True
 
 mongo_service = MongoService()

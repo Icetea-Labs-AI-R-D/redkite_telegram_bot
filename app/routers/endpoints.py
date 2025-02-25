@@ -35,17 +35,26 @@ async def update(payload: dict):
     
     
     
-    # logger.info('payload.get("message", {}).get("entities", [])[:1]: ' + str(payload.get("message", {}).get("entities", [])[:1]))
+    logger.info('is_bot:' + str(payload.get("message", {}).get("reply_to_message", {}).get("from", {}).get("is_bot", False)and payload.get("message", {}).get("reply_to_message", {}).get("from", {}).get("username", "") == "RedKite_GPT_Bot"))
     
     if next(iter(payload.get("message", {}).get("entities", [])), {}).get("type", "") == "mention" and "@RedKite_GPT_Bot" in payload.get("message", {}).get("text", "") \
             or  (payload.get("message", {}).get("reply_to_message", {}).get("from", {}).get("is_bot", False) \
-                and payload.get("message", {}).get("reply_to_message", {}).get("from", {}).get("username", "") == "RedKite_GPT_Bot"):
+                and payload.get("message", {}).get("reply_to_message", {}).get("from", {}).get("username", "") == "RedKite_GPT_Bot") \
+            or payload.get("message", {}).get("chat", {}).get("type", "") == "private":
 
         chat_id = payload.get("message", {})["chat"]["id"]
         content = payload.get("message", {})["text"]
         
-        
+            
         reply_to_id = payload.get("message", {})["message_id"]
         
-        await chat_service.reply_to_chat_message(chat_id, content, reply_to_id)
+        bot_replied_message_id = payload.get("message", {}).get("reply_to_message", {}).get("message_id", 0)
+        
+        if  payload.get("message", {}).get("chat", {}).get("type", "") == "private":
+            reply_to_id = None
+            
+        user_id = payload.get("message", {}).get("from", {}).get("id", 0)
+        
+        
+        await chat_service.reply_to_chat_message(chat_id, user_id, content, reply_to_id, bot_replied_message_id)
         
